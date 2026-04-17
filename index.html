@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FLAMES — Destiny Revealed</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0608;
+    --surface: #130d10;
+    --surface2: #1e1318;
+    --border: #3d2030;
+    --accent-f: #ff4d6d;
+    --accent-l: #ff85a1;
+    --accent-a: #ffd700;
+    --accent-m: #c77dff;
+    --accent-e: #4cc9f0;
+    --accent-s: #80ed99;
+    --text: #f5e6ec;
+    --text-muted: #9c7080;
+    --glow: #ff4d6d;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Cormorant Garamond', serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* ── Ambient background ── */
+  .bg-ambient {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 10%, rgba(180,30,60,.18) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 80% 90%, rgba(120,0,80,.22) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 40% at 50% 50%, rgba(255,77,109,.04) 0%, transparent 70%);
+  }
+
+  .noise {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: .04;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  }
+
+  /* ── Floating particles ── */
+  .particles { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  .particle {
+    position: absolute;
+    width: 2px; height: 2px;
+    border-radius: 50%;
+    background: var(--accent-f);
+    animation: floatUp linear infinite;
+    opacity: 0;
+  }
+  @keyframes floatUp {
+    0%   { transform: translateY(100vh) translateX(0) scale(0); opacity: 0; }
+    10%  { opacity: .7; }
+    90%  { opacity: .4; }
+    100% { transform: translateY(-10vh) translateX(var(--drift)) scale(1.5); opacity: 0; }
+  }
+
+  /* ── Layout ── */
+  .wrapper { position: relative; z-index: 1; max-width: 780px; margin: 0 auto; padding: 0 24px 80px; }
+
+  /* ── Header ── */
+  header {
+    text-align: center;
+    padding: 60px 0 40px;
+    animation: fadeDown .8s ease both;
+  }
+  .header-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: .35em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  .logo {
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: clamp(52px, 12vw, 88px);
+    font-weight: 900;
+    line-height: 1;
+    background: linear-gradient(135deg, #ff4d6d 0%, #ffd700 35%, #c77dff 65%, #4cc9f0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 40px rgba(255,77,109,.5));
+    letter-spacing: .08em;
+  }
+  .header-sub {
+    font-style: italic;
+    font-size: 18px;
+    color: var(--text-muted);
+    margin-top: 14px;
+    letter-spacing: .04em;
+  }
+  .header-line {
+    width: 120px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 24px auto 0;
+  }
+
+  /* ── Card ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 60px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.04);
+    animation: fadeUp .8s .2s ease both;
+  }
+  .card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,77,109,.6) 50%, transparent 100%);
+  }
+
+  /* ── Input group ── */
+  .input-group { display: grid; gap: 20px; }
+
+  .input-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .input-icon {
+    font-size: 22px;
+    flex-shrink: 0;
+    width: 36px;
+    text-align: center;
+    filter: drop-shadow(0 0 8px rgba(255,133,161,.6));
+  }
+
+  .input-wrapper { flex: 1; position: relative; }
+
+  .input-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .25em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .input-field {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 300;
+    color: var(--text);
+    outline: none;
+    transition: border-color .3s, box-shadow .3s;
+    letter-spacing: .04em;
+  }
+  .input-field::placeholder { color: #4a3040; }
+  .input-field:focus {
+    border-color: rgba(255,77,109,.5);
+    box-shadow: 0 0 0 3px rgba(255,77,109,.08), 0 0 20px rgba(255,77,109,.12);
+  }
+
+  /* ── Divider ── */
+  .vs-row {
+    display: flex; align-items: center; gap: 16px; margin: 4px 0;
+  }
+  .vs-line { flex: 1; height: 1px; background: var(--border); }
+  .vs-badge {
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: 13px;
+    color: var(--text-muted);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    width: 40px; height: 40px;
+    display: flex; align-items: center; justify-content: center;
+    letter-spacing: .05em;
+  }
+
+  /* ── Button ── */
+  .btn-row { margin-top: 28px; display: flex; gap: 12px; }
+
+  .btn-primary {
+    flex: 1;
+    background: linear-gradient(135deg, #8b0028 0%, #c0003c 40%, #ff4d6d 100%);
+    border: none;
+    border-radius: 12px;
+    padding: 16px 32px;
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    cursor: pointer;
+    letter-spacing: .1em;
+    position: relative;
+    overflow: hidden;
+    transition: transform .2s, box-shadow .3s;
+    box-shadow: 0 4px 20px rgba(255,77,109,.3);
+  }
+  .btn-primary::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, transparent 30%, rgba(255,255,255,.15) 100%);
+    opacity: 0; transition: opacity .3s;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(255,77,109,.45); }
+  .btn-primary:hover::after { opacity: 1; }
+  .btn-primary:active { transform: translateY(0); }
+
+  .btn-reset {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: border-color .2s, color .2s;
+  }
+  .btn-reset:hover { border-color: rgba(255,77,109,.4); color: var(--text); }
+
+  /* ── Steps panel ── */
+  .steps-panel {
+    margin-top: 28px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    display: none;
+    animation: fadeUp .5s ease both;
+  }
+  .steps-panel.visible { display: block; }
+
+  .steps-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .3em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+
+  .step-item {
+    display: flex; gap: 14px; align-items: flex-start;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(61,32,48,.5);
+    animation: fadeLeft .4s ease both;
+  }
+  .step-item:last-child { border-bottom: none; }
+
+  .step-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent-f);
+    opacity: .6;
+    min-width: 24px;
+    margin-top: 2px;
+  }
+
+  .step-text {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #d4a8b8;
+  }
+
+  .step-highlight {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    background: rgba(255,77,109,.1);
+    border: 1px solid rgba(255,77,109,.2);
+    border-radius: 6px;
+    padding: 2px 8px;
+    color: var(--accent-f);
+  }
+
+  .letters-row {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;
+  }
+
+  .letter-chip {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 6px;
+    border: 1px solid;
+    transition: all .3s;
+  }
+  .letter-chip.active {
+    background: rgba(255,77,109,.1);
+    border-color: rgba(255,77,109,.3);
+    color: #ff8fa3;
+  }
+  .letter-chip.cancelled {
+    background: rgba(255,255,255,.02);
+    border-color: rgba(61,32,48,.5);
+    color: #4a3040;
+    text-decoration: line-through;
+  }
+
+  /* ── FLAMES counter ── */
+  .flames-track {
+    margin-top: 16px;
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .flame-chip {
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: 14px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid;
+    transition: all .4s;
+    cursor: default;
+  }
+  .flame-chip.alive-F  { background: rgba(255,77,109,.12);  border-color: rgba(255,77,109,.35);  color: var(--accent-f); }
+  .flame-chip.alive-L  { background: rgba(255,133,161,.12); border-color: rgba(255,133,161,.35); color: var(--accent-l); }
+  .flame-chip.alive-A  { background: rgba(255,215,0,.12);   border-color: rgba(255,215,0,.35);   color: var(--accent-a); }
+  .flame-chip.alive-M  { background: rgba(199,125,255,.12); border-color: rgba(199,125,255,.35); color: var(--accent-m); }
+  .flame-chip.alive-E  { background: rgba(76,201,240,.12);  border-color: rgba(76,201,240,.35);  color: var(--accent-e); }
+  .flame-chip.alive-S  { background: rgba(128,237,153,.12); border-color: rgba(128,237,153,.35); color: var(--accent-s); }
+  .flame-chip.dead {
+    background: transparent;
+    border-color: rgba(61,32,48,.4);
+    color: #2a1a20;
+    text-decoration: line-through;
+  }
+  .flame-chip.current {
+    box-shadow: 0 0 14px currentColor;
+    transform: scale(1.1);
+  }
+
+  /* ── Result card ── */
+  .result-section {
+    display: none;
+    margin-top: 32px;
+    text-align: center;
+    animation: zoomIn .7s cubic-bezier(.34,1.56,.64,1) both;
+  }
+  .result-section.visible { display: block; }
+
+  .result-card {
+    background: var(--surface);
+    border: 1px solid;
+    border-radius: 24px;
+    padding: 48px 32px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .result-glow {
+    position: absolute; inset: -60px;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: .25;
+    animation: pulse 3s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: .2; }
+    50% { transform: scale(1.1); opacity: .35; }
+  }
+
+  .result-letter {
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: clamp(80px, 18vw, 120px);
+    font-weight: 900;
+    line-height: 1;
+    position: relative;
+    z-index: 1;
+    animation: letterReveal .8s cubic-bezier(.34,1.56,.64,1) both;
+    filter: drop-shadow(0 0 30px currentColor);
+  }
+
+  .result-meaning {
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: clamp(22px, 5vw, 34px);
+    font-weight: 400;
+    letter-spacing: .08em;
+    position: relative; z-index: 1;
+    margin-top: 12px;
+  }
+
+  .result-names {
+    font-style: italic;
+    font-size: 18px;
+    color: var(--text-muted);
+    margin-top: 14px;
+    position: relative; z-index: 1;
+  }
+
+  .result-emoji {
+    font-size: 40px;
+    margin-top: 20px;
+    position: relative; z-index: 1;
+    animation: floatEmoji 2s ease-in-out infinite;
+  }
+
+  @keyframes floatEmoji {
+    0%,100% { transform: translateY(0) rotate(-5deg); }
+    50% { transform: translateY(-8px) rotate(5deg); }
+  }
+
+  .result-desc {
+    font-size: 16px;
+    line-height: 1.7;
+    color: #9c7080;
+    margin-top: 20px;
+    font-style: italic;
+    position: relative; z-index: 1;
+    max-width: 440px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .share-row {
+    display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
+    margin-top: 28px; position: relative; z-index: 1;
+  }
+
+  .share-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all .2s;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .share-btn:hover { border-color: rgba(255,77,109,.4); color: var(--text); transform: translateY(-1px); }
+
+  /* ── History section ── */
+  .history-section {
+    margin-top: 40px;
+    animation: fadeUp .6s .4s ease both;
+  }
+
+  .section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .3em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .clear-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    color: #4a3040;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color .2s;
+  }
+  .clear-btn:hover { color: var(--accent-f); }
+
+  .history-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .history-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    display: flex; align-items: center; gap: 16px;
+    animation: fadeLeft .4s ease both;
+    cursor: pointer;
+    transition: border-color .2s;
+  }
+  .history-item:hover { border-color: rgba(255,77,109,.3); }
+
+  .history-letter {
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: 22px;
+    font-weight: 700;
+    min-width: 32px;
+    text-align: center;
+  }
+
+  .history-names {
+    flex: 1;
+    font-size: 15px;
+    color: var(--text);
+  }
+  .history-names span { color: var(--text-muted); font-size: 13px; }
+
+  .history-meaning {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+  }
+
+  .history-time {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: #3a2030;
+  }
+
+  /* ── Legend ── */
+  .legend {
+    margin-top: 40px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    animation: fadeUp .6s .6s ease both;
+  }
+
+  .legend-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex; align-items: center; gap: 12px;
+    transition: transform .2s, border-color .2s;
+  }
+  .legend-item:hover { transform: translateY(-2px); border-color: rgba(255,77,109,.25); }
+
+  .legend-letter {
+    font-family: 'Cinzel Decorative', cursive;
+    font-size: 24px;
+    font-weight: 700;
+    min-width: 32px;
+  }
+
+  .legend-text { flex: 1; }
+  .legend-name { font-size: 15px; font-weight: 400; }
+  .legend-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; font-style: italic; }
+
+  /* ── Footer ── */
+  footer {
+    text-align: center;
+    padding: 40px 0 20px;
+    font-size: 13px;
+    color: #3a2030;
+    font-style: italic;
+  }
+
+  /* ── Confetti ── */
+  .confetti-container {
+    position: fixed; inset: 0; pointer-events: none; z-index: 100;
+    overflow: hidden;
+  }
+  .confetti-piece {
+    position: absolute;
+    top: -10px;
+    width: 8px; height: 8px;
+    border-radius: 2px;
+    animation: confettiFall linear forwards;
+  }
+  @keyframes confettiFall {
+    to { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* ── Animations ── */
+  @keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: none; } }
+  @keyframes fadeUp   { from { opacity: 0; transform: translateY(20px);  } to { opacity: 1; transform: none; } }
+  @keyframes fadeLeft { from { opacity: 0; transform: translateX(-12px); } to { opacity: 1; transform: none; } }
+  @keyframes zoomIn   { from { opacity: 0; transform: scale(.85);        } to { opacity: 1; transform: none; } }
+  @keyframes letterReveal {
+    0%   { opacity: 0; transform: scale(0) rotate(-15deg); }
+    60%  { transform: scale(1.15) rotate(5deg); }
+    100% { opacity: 1; transform: scale(1) rotate(0); }
+  }
+
+  /* ── Copied toast ── */
+  .toast {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 24px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    letter-spacing: .1em;
+    color: var(--text);
+    z-index: 200;
+    transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ── Responsive ── */
+  @media (max-width: 520px) {
+    .card { padding: 24px 20px; }
+    .input-row { flex-wrap: wrap; }
+    .btn-row { flex-direction: column; }
+    .legend { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-ambient"></div>
+<div class="noise"></div>
+<div class="particles" id="particles"></div>
+<div class="confetti-container" id="confetti"></div>
+<div class="toast" id="toast">✓ Copied to clipboard</div>
+
+<div class="wrapper">
+
+  <!-- Header -->
+  <header>
+    <p class="header-eyebrow">✦ The Ancient Oracle ✦</p>
+    <h1 class="logo">FLAMES</h1>
+    <p class="header-sub">Unveil the destiny written between two souls</p>
+    <div class="header-line"></div>
+  </header>
+
+  <!-- Main Card -->
+  <div class="card">
+    <div class="input-group">
+      <div class="input-row">
+        <div class="input-icon">🌹</div>
+        <div class="input-wrapper">
+          <label class="input-label" for="name1">First Name</label>
+          <input class="input-field" id="name1" type="text" placeholder="Enter first name…" autocomplete="off" maxlength="40">
+        </div>
+      </div>
+
+      <div class="vs-row">
+        <div class="vs-line"></div>
+        <div class="vs-badge">VS</div>
+        <div class="vs-line"></div>
+      </div>
+
+      <div class="input-row">
+        <div class="input-icon">💌</div>
+        <div class="input-wrapper">
+          <label class="input-label" for="name2">Second Name</label>
+          <input class="input-field" id="name2" type="text" placeholder="Enter second name…" autocomplete="off" maxlength="40">
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-primary" id="revealBtn" onclick="playFlames()">✦ Reveal Destiny ✦</button>
+      <button class="btn-reset" onclick="resetAll()">↺ Reset</button>
+    </div>
+
+    <!-- Steps Panel -->
+    <div class="steps-panel" id="stepsPanel">
+      <p class="steps-title">✦ How It Was Calculated</p>
+      <div id="stepsContent"></div>
+      <div style="margin-top:16px;">
+        <p class="steps-title" style="margin-bottom:10px">FLAMES Elimination</p>
+        <div class="flames-track" id="flamesTrack"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Result Section -->
+  <div class="result-section" id="resultSection">
+    <div class="result-card" id="resultCard">
+      <div class="result-glow" id="resultGlow"></div>
+      <div class="result-letter" id="resultLetter"></div>
+      <div class="result-meaning" id="resultMeaning"></div>
+      <div class="result-names" id="resultNames"></div>
+      <div class="result-emoji" id="resultEmoji"></div>
+      <p class="result-desc" id="resultDesc"></p>
+      <div class="share-row">
+        <button class="share-btn" onclick="copyResult()">📋 Copy Result</button>
+        <button class="share-btn" onclick="playAgain()">🔮 Play Again</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend" id="legend">
+    <div class="legend-item">
+      <span class="legend-letter" style="color:var(--accent-f)">F</span>
+      <div class="legend-text">
+        <div class="legend-name" style="color:var(--accent-f)">Friends</div>
+        <div class="legend-desc">A bond built on laughter & trust</div>
+      </div>
+    </div>
+    <div class="legend-item">
+      <span class="legend-letter" style="color:var(--accent-l)">L</span>
+      <div class="legend-text">
+        <div class="legend-name" style="color:var(--accent-l)">Love</div>
+        <div class="legend-desc">Hearts that beat as one</div>
+      </div>
+    </div>
+    <div class="legend-item">
+      <span class="legend-letter" style="color:var(--accent-a)">A</span>
+      <div class="legend-text">
+        <div class="legend-name" style="color:var(--accent-a)">Affection</div>
+        <div class="legend-desc">A warmth deeper than words</div>
+      </div>
+    </div>
+    <div class="legend-item">
+      <span class="legend-letter" style="color:var(--accent-m)">M</span>
+      <div class="legend-text">
+        <div class="legend-name" style="color:var(--accent-m)">Marriage</div>
+        <div class="legend-desc">Two souls, one forever story</div>
+      </div>
+    </div>
+    <div class="legend-item">
+      <span class="legend-letter" style="color:var(--accent-e)">E</span>
+      <div class="legend-text">
+        <div class="legend-name" style="color:var(--accent-e)">Enemies</div>
+        <div class="legend-desc">Clash of fire and ice</div>
+      </div>
+    </div>
+    <div class="legend-item">
+      <span class="legend-letter" style="color:var(--accent-s)">S</span>
+      <div class="legend-text">
+        <div class="legend-name" style="color:var(--accent-s)">Siblings</div>
+        <div class="legend-desc">Bound by blood and chaos</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- History -->
+  <div class="history-section" id="historySection" style="display:none">
+    <div class="section-header">
+      <span class="section-title">✦ Past Readings</span>
+      <button class="clear-btn" onclick="clearHistory()">Clear All</button>
+    </div>
+    <div class="history-list" id="historyList"></div>
+  </div>
+
+  <footer>The stars have spoken. The oracle never lies. ✦</footer>
+</div>
+
+<script>
+// ── Config ──
+const FLAMES_DATA = {
+  F: { name: 'Friends',   emoji: '🤝', color: 'var(--accent-f)', desc: 'The universe has woven your paths as companions — a friendship destined to carry you through life\'s greatest adventures.' },
+  L: { name: 'Love',      emoji: '❤️', color: 'var(--accent-l)', desc: 'The stars sing of a love that transcends time — your hearts are drawn together by forces older than the cosmos itself.' },
+  A: { name: 'Affection', emoji: '💛', color: 'var(--accent-a)', desc: 'A gentle, golden warmth flows between you — an affection that blooms quietly and never fully fades.' },
+  M: { name: 'Marriage',  emoji: '💍', color: 'var(--accent-m)', desc: 'Written in celestial ink: a union. Two stories becoming one, two souls choosing the same forever.' },
+  E: { name: 'Enemies',   emoji: '⚔️', color: 'var(--accent-e)', desc: 'Fire meets fire. The sparks between you are electric — whether rivals or adversaries, the tension is undeniable.' },
+  S: { name: 'Siblings',  emoji: '🫂', color: 'var(--accent-s)', desc: 'Kin at heart — whether by blood or by bond, you\'re destined to bicker, protect, and cherish one another endlessly.' },
+};
+
+let history = JSON.parse(localStorage.getItem('flames_history') || '[]');
+let currentResult = null;
+
+// ── Particles ──
+function createParticles() {
+  const c = document.getElementById('particles');
+  const colors = ['#ff4d6d','#ffd700','#c77dff','#4cc9f0','#ff85a1'];
+  for (let i = 0; i < 25; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.cssText = `
+      left: ${Math.random()*100}%;
+      width: ${Math.random()*2+1}px;
+      height: ${Math.random()*2+1}px;
+      background: ${colors[Math.floor(Math.random()*colors.length)]};
+      animation-duration: ${Math.random()*15+10}s;
+      animation-delay: ${Math.random()*10}s;
+      --drift: ${(Math.random()-0.5)*200}px;
+    `;
+    c.appendChild(p);
+  }
+}
+createParticles();
+
+// ── FLAMES Logic ──
+function flames(n1, n2) {
+  const a = n1.toLowerCase().replace(/\s/g,'').split('');
+  const b = n2.toLowerCase().replace(/\s/g,'').split('');
+  const aCopy = [...a];
+  const bCopy = [...b];
+
+  // Cancel common letters
+  for (let i = 0; i < aCopy.length; i++) {
+    const idx = bCopy.indexOf(aCopy[i]);
+    if (idx !== -1) { aCopy[i] = null; bCopy[idx] = null; }
+  }
+
+  const remaining = [...aCopy.filter(Boolean), ...bCopy.filter(Boolean)];
+  const count = remaining.length;
+
+  // Eliminate from FLAMES
+  let arr = ['F','L','A','M','E','S'];
+  let idx = 0;
+  const elimOrder = [];
+  while (arr.length > 1) {
+    idx = (idx + count - 1) % arr.length;
+    elimOrder.push({ eliminated: arr[idx], before: [...arr] });
+    arr.splice(idx, 1);
+    if (idx >= arr.length) idx = 0;
+  }
+
+  return {
+    name1Letters: a,
+    name2Letters: b,
+    cancelledA: aCopy,
+    cancelledB: bCopy,
+    remaining,
+    count,
+    elimOrder,
+    result: arr[0],
+  };
+}
+
+// ── Main Play ──
+function playFlames() {
+  const n1 = document.getElementById('name1').value.trim();
+  const n2 = document.getElementById('name2').value.trim();
+  if (!n1 || !n2) { shake(); return; }
+
+  const data = flames(n1, n2);
+  currentResult = { n1, n2, ...data };
+
+  renderSteps(data, n1, n2);
+  animateElimination(data, n1, n2);
+}
+
+function shake() {
+  const card = document.querySelector('.card');
+  card.style.animation = 'none';
+  card.style.transform = 'translateX(-8px)';
+  setTimeout(() => { card.style.transform = 'translateX(8px)'; }, 80);
+  setTimeout(() => { card.style.transform = 'translateX(-5px)'; }, 160);
+  setTimeout(() => { card.style.transform = 'translateX(0)'; card.style.animation = ''; }, 240);
+}
+
+function renderSteps(data, n1, n2) {
+  const panel = document.getElementById('stepsPanel');
+  const content = document.getElementById('stepsContent');
+
+  // Build letter chips
+  const buildChips = (letters, cancelled) =>
+    letters.map((l, i) => `<span class="letter-chip ${cancelled[i] ? 'cancelled' : 'active'}">${l.toUpperCase()}</span>`).join('');
+
+  content.innerHTML = `
+    <div class="step-item" style="animation-delay:.05s">
+      <span class="step-num">01</span>
+      <div class="step-text">
+        <strong>${n1}</strong> → <div class="letters-row">${buildChips(data.name1Letters, data.cancelledA)}</div>
+      </div>
+    </div>
+    <div class="step-item" style="animation-delay:.1s">
+      <span class="step-num">02</span>
+      <div class="step-text">
+        <strong>${n2}</strong> → <div class="letters-row">${buildChips(data.name2Letters, data.cancelledB)}</div>
+      </div>
+    </div>
+    <div class="step-item" style="animation-delay:.15s">
+      <span class="step-num">03</span>
+      <div class="step-text">
+        Remaining letters after cancellation: <span class="step-highlight">${data.count}</span>
+        <div class="letters-row">${data.remaining.map(l => `<span class="letter-chip active">${l.toUpperCase()}</span>`).join('')}</div>
+      </div>
+    </div>
+    <div class="step-item" style="animation-delay:.2s">
+      <span class="step-num">04</span>
+      <div class="step-text">Counting <span class="step-highlight">${data.count}</span> through FLAMES, eliminating each letter landed on…</div>
+    </div>
+  `;
+
+  panel.classList.add('visible');
+}
+
+function animateElimination(data, n1, n2) {
+  const track = document.getElementById('flamesTrack');
+  track.innerHTML = '';
+
+  const chips = {};
+  ['F','L','A','M','E','S'].forEach(l => {
+    const chip = document.createElement('div');
+    chip.className = `flame-chip alive-${l}`;
+    chip.id = `chip-${l}`;
+    chip.textContent = l;
+    track.appendChild(chip);
+    chips[l] = chip;
+  });
+
+  const steps = data.elimOrder;
+  let i = 0;
+
+  function nextStep() {
+    if (i < steps.length) {
+      // Highlight current
+      steps[i].before.forEach(l => {
+        const c = chips[l];
+        c.classList.remove('current','dead');
+        c.className = `flame-chip alive-${l}`;
+      });
+      chips[steps[i].eliminated].classList.add('current');
+
+      setTimeout(() => {
+        chips[steps[i].eliminated].className = 'flame-chip dead';
+        i++;
+        if (i < steps.length) setTimeout(nextStep, 350);
+        else setTimeout(() => showResult(data, n1, n2), 500);
+      }, 400);
+    }
+  }
+
+  setTimeout(nextStep, 200);
+}
+
+function showResult(data, n1, n2) {
+  const r = data.result;
+  const info = FLAMES_DATA[r];
+
+  // Update result card
+  document.getElementById('resultLetter').textContent = r;
+  document.getElementById('resultLetter').style.color = info.color;
+  document.getElementById('resultLetter').style.textShadow = `0 0 40px ${info.color}`;
+  document.getElementById('resultMeaning').textContent = info.name;
+  document.getElementById('resultMeaning').style.color = info.color;
+  document.getElementById('resultNames').textContent = `${n1} & ${n2}`;
+  document.getElementById('resultEmoji').textContent = info.emoji;
+  document.getElementById('resultDesc').textContent = info.desc;
+
+  const card = document.getElementById('resultCard');
+  card.style.borderColor = info.color + '55';
+
+  const glow = document.getElementById('resultGlow');
+  glow.style.background = info.color;
+
+  const section = document.getElementById('resultSection');
+  section.classList.add('visible');
+  section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+  // Confetti for love/marriage
+  if (r === 'L' || r === 'M') launchConfetti(info.color);
+
+  // Save to history
+  addHistory(n1, n2, r, info);
+}
+
+// ── History ──
+function addHistory(n1, n2, letter, info) {
+  const entry = { n1, n2, letter, name: info.name, color: info.color, emoji: info.emoji, time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) };
+  history.unshift(entry);
+  if (history.length > 10) history.pop();
+  localStorage.setItem('flames_history', JSON.stringify(history));
+  renderHistory();
+}
+
+function renderHistory() {
+  const section = document.getElementById('historySection');
+  const list = document.getElementById('historyList');
+  if (history.length === 0) { section.style.display = 'none'; return; }
+  section.style.display = 'block';
+  list.innerHTML = history.map((h, i) => `
+    <div class="history-item" style="animation-delay:${i*.05}s" onclick="replayHistory(${i})">
+      <span class="history-letter" style="color:${h.color}">${h.letter}</span>
+      <div class="history-names">
+        ${h.n1} <span>&</span> ${h.n2}
+      </div>
+      <span class="history-meaning" style="color:${h.color}">${h.name} ${h.emoji}</span>
+      <span class="history-time">${h.time}</span>
+    </div>
+  `).join('');
+}
+
+function replayHistory(i) {
+  const h = history[i];
+  document.getElementById('name1').value = h.n1;
+  document.getElementById('name2').value = h.n2;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  setTimeout(() => playFlames(), 400);
+}
+
+function clearHistory() {
+  history = [];
+  localStorage.removeItem('flames_history');
+  renderHistory();
+}
+
+// ── Confetti ──
+function launchConfetti(color) {
+  const container = document.getElementById('confetti');
+  const colors = [color, '#ffd700', '#fff', '#ff85a1', '#c77dff'];
+  for (let i = 0; i < 60; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    const c = colors[Math.floor(Math.random() * colors.length)];
+    p.style.cssText = `
+      left: ${Math.random()*100}%;
+      background: ${c};
+      width: ${Math.random()*8+4}px;
+      height: ${Math.random()*8+4}px;
+      border-radius: ${Math.random() > .5 ? '50%' : '2px'};
+      animation-duration: ${Math.random()*2+1.5}s;
+      animation-delay: ${Math.random()*1}s;
+    `;
+    container.appendChild(p);
+    setTimeout(() => p.remove(), 3500);
+  }
+}
+
+// ── Copy / Share ──
+function copyResult() {
+  if (!currentResult) return;
+  const r = currentResult.result;
+  const info = FLAMES_DATA[r];
+  const text = `🔮 FLAMES Result for ${currentResult.n1} & ${currentResult.n2}: ${r} — ${info.name} ${info.emoji}\n"${info.desc}"`;
+  navigator.clipboard.writeText(text).then(() => showToast());
+}
+
+function showToast() {
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ── Reset / Play Again ──
+function resetAll() {
+  document.getElementById('name1').value = '';
+  document.getElementById('name2').value = '';
+  document.getElementById('stepsPanel').classList.remove('visible');
+  document.getElementById('resultSection').classList.remove('visible');
+  document.getElementById('name1').focus();
+  currentResult = null;
+}
+
+function playAgain() {
+  resetAll();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── Enter key ──
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') playFlames();
+});
+
+// ── Init ──
+renderHistory();
+</script>
+</body>
+</html>
